@@ -1,0 +1,9 @@
+[package]
+name = "bandersnatch-test-vectors"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+ark-vrf = { version = "0.6.1", features = ["bandersnatch", "ring"] }
+hex = "0.4"
+serde_json = "1.0"
