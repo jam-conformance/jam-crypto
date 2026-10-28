@@ -11,6 +11,9 @@ use ark_vrf::{
 
 type Vector = HashMap<String, String>;
 
+// The JAM ring size gives the ring domain |D| = 2048 of section 5 of the specification.
+const JAM_VALIDATOR_COUNT: usize = 1023;
+
 fn data_path(relative: &str) -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("..")
@@ -118,7 +121,7 @@ fn check_ring(vector: &Vector, pcs_params: &PcsParams) {
     );
 
     let ring_pks: Vec<Public> = field(vector, "ring_pks").chunks(32).map(decode).collect();
-    let ring_setup = RingSetup::from_pcs_params(ring_pks.len(), pcs_params.clone()).unwrap();
+    let ring_setup = RingSetup::from_pcs_params(JAM_VALIDATOR_COUNT, pcs_params.clone()).unwrap();
     let (prover_key, verifier_key) = ring_setup.keys(&ring_pks).unwrap();
     let commitment = encode(&verifier_key.commitment());
     assert_eq!(commitment, field(vector, "ring_pks_com"), "ring_pks_com");
@@ -132,7 +135,7 @@ fn check_ring(vector: &Vector, pcs_params: &PcsParams) {
     // The vectors come from a prover without column blinding, so that the proof is reproducible.
     let signer = ring_pks.iter().position(|pk| *pk == public).unwrap();
     let prover =
-        RingContext::new_without_blinding(ring_pks.len()).into_ring_prover(prover_key, signer);
+        RingContext::new_without_blinding(JAM_VALIDATOR_COUNT).into_ring_prover(prover_key, signer);
     assert_eq!(
         encode(&secret.prove_ring(io, &ad, &prover)),
         proof_bytes,

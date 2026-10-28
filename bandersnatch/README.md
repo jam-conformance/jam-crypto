@@ -31,10 +31,12 @@ blinding factor.
 ## Ring parameters
 
 - The ring has 8 keys. The signer is at index 3.
-- The domain size is |D| = 512, the smallest domain for 8 keys. Section 5 of the
-  specification gives |D| = 2048 for JAM. The ring commitment and the ring proof
-  depend on |D|, so a prover or verifier with |D| = 2048 does not reproduce
-  `ring_pks_com` or `ring_proof`.
+- The domain size is |D| = 2048, as in section 5 of the specification. This is the
+  smallest domain for the JAM ring of 1023 validators, and it holds 1791 keys. The
+  padding point fills the ring after the 8 keys.
+- The ring commitment and the ring proof depend on |D|. A prover or verifier with
+  another domain, for example |D| = 512 (the smallest domain for 8 keys), does not
+  reproduce `ring_pks_com` or `ring_proof`.
 - The KZG parameters are the first 3·|D| + 1 G1 powers of the reference string.
 - The prover runs without column blinding: the zk rows hold zeros. Thus the proof is
   deterministic, but it is not zero-knowledge. A verifier with blinding on accepts it.
